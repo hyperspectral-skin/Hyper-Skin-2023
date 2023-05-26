@@ -1,6 +1,7 @@
-pretrained-models/*.pth
 *.pth
 *.pyc
+results 
+pretrained_models/hyper-skin/nir/hrnet
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
