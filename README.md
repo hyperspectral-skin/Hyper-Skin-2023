@@ -54,7 +54,9 @@ We also provided experimental notebooks that user can follow to repeat the exper
 These experimental notebooks are provided in the jupyter notebook format and can be found [here](experiments).
 
 
-
+### Citation
+----
+If you use this package or the associated dataset, please kindly cite these following BibTeX entries:
 
 ### MIT License
 ----
