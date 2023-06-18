@@ -69,16 +69,16 @@ python main.py --data_dir {data_dir} --model_name {model_name} --save_dir {save_
 > **Note**
 > 
 > The followiing arguments are required to run the main.py script:
-> - data_dir (str, required): the path to the data folder
-> - model_name (str, required): the name of the model to be trained. The model name can be either 'MST', 'HRNet', or 'HSCNN'
+> - data_dir (*str, required*): the path to the data folder
+> - model_name (*str, required*): the name of the model to be trained. The model name can be either 'MST', 'HRNet', or 'HSCNN'
 >
 > The following arguments are optional:
-> - save_dir (str, default='saved-models'): the path to the folder to save the trained model
-> - logged_dir (str, default='log'): the path to the folder to save the training logs
-> - reconstructed_dir (str, default='reconstructed-hsi'): the path to the folder to save the reconstructed hyperspectral cubes.
-> - saved_predicted (bool, default=False): whether to save the predicted hyperspectral cubes. If True, the predicted hyperspectral cubes will be saved in the folder specified by the 'reconstructed_dir' argument.
-> - external_dir (str, default=None): the path to the external location to save the training logs, the trained model and the reconstructed hyperspectral cubes. The external path can be saved if the current directory has limited storage to save the reconstructed cubes.
-> - camera_type (str, default='CIE'): the camera type defines the input RGB images to be used for the experiment, refer to the paper for all the available camera types that used to generate the RGB images.
+> - save_dir (*str, default='saved-models'*): the path to the folder to save the trained model
+> - logged_dir (*str, default='log'*): the path to the folder to save the training logs
+> - reconstructed_dir (*str, default='reconstructed-hsi'*): the path to the folder to save the reconstructed hyperspectral cubes.
+> - saved_predicted (*bool, default=False*): whether to save the predicted hyperspectral cubes. If True, the predicted hyperspectral cubes will be saved in the folder specified by the 'reconstructed_dir' argument.
+> - external_dir (*str, default=None*): the path to the external location to save the training logs, the trained model and the reconstructed hyperspectral cubes. The external path can be saved if the current directory has limited storage to save the reconstructed cubes.
+> - camera_type (*str, default='CIE'*): the camera type defines the input RGB images to be used for the experiment, refer to the paper for all the available camera types that used to generate the RGB images.
 >
 
 ### 2. To evaluate the models with our Hyper-Skin dataset
