@@ -28,7 +28,7 @@ In each dataset, you can find the (input, output) pair folders. For (RGB, VIS), 
 In each folder, there are train and test subfolder containing the training set data and testing set data. The organization of the data is as follows:
 
 
-```shell
+```
  |-- Hyper-Skin(RGB, VIS) 
      |-- HSI_VIS
          |-- train
