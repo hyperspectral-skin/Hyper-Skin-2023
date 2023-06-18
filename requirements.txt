@@ -1,0 +1,11 @@
+h5py==3.7.0
+hdf5storage==0.1.18
+matplotlib==3.5.2
+numpy==1.23.1
+opencv_contrib_python==4.7.0.72
+opencv_python==4.7.0.72
+scipy==1.9.0
+torch==1.12.1+cu113
+torchinfo==1.7.2
+torchmetrics==0.11.0
+torchvision==0.13.1+cu113

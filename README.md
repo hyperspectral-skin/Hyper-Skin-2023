@@ -9,6 +9,7 @@
 
 
 ## Introduction
+----
 
 ![img](figure/overview.png)
 This repository contains the codes for the benchmark evaluation design for **Hyper-Skin 2023 dataset**. The instruction to request the access to the data can be found [here](https://hyper-skin-2023.github.io/dataset/). 
@@ -57,6 +58,33 @@ We used three spectral reconstruction algorithms as the baseline models for our 
 The pretrained models on NTIRE2022 dataset are provided by [caiyuanhao1998](https://github.com/caiyuanhao1998) and can be downloaded from [here](https://github.com/caiyuanhao1998/MST-plus-plus).
 
 
+### 1. To re-train the models with our Hyper-Skin dataset
+- Set up a virtual environment with python 3
+- Install Python Packages: `pip install -r requirements.txt`
+- Download the code for MST++, HRNet, and HSCNN model architecture from [here](https://github.com/caiyuanhao1998/MST-plus-plus/tree/master/train_code/architecture) (Credit to [caiyuanhao1998](https://github.com/caiyuanhao1998)). Put the code in the "`models/reconstruction`" folder.
+- run the following command to train the model:
+```
+python main.py --data_dir {data_dir} --model_name {model_name} --save_dir {save_path} --logged_dir {log path} --reconstructed_dir {reconstructed_path} --saved_predicted {save?}
+```
+> **Note**
+> 
+> The followiing arguments are required to run the main.py script:
+> - data_dir (str, required): the path to the data folder
+> - model_name (str, required): the name of the model to be trained. The model name can be either 'MST', 'HRNet', or 'HSCNN'
+>
+> The following arguments are optional:
+> - save_dir (str, default='saved-models'): the path to the folder to save the trained model
+> - logged_dir (str, default='log'): the path to the folder to save the training logs
+> - reconstructed_dir (str, default='reconstructed-hsi'): the path to the folder to save the reconstructed hyperspectral cubes.
+> - saved_predicted (bool, default=False): whether to save the predicted hyperspectral cubes. If True, the predicted hyperspectral cubes will be saved in the folder specified by the 'reconstructed_dir' argument.
+> - external_dir (str, default=None): the path to the external location to save the training logs, the trained model and the reconstructed hyperspectral cubes. The external path can be saved if the current directory has limited storage to save the reconstructed cubes.
+> - camera_type (str, default='CIE'): the camera type defines the input RGB images to be used for the experiment, refer to the paper for all the available camera types that used to generate the RGB images.
+>
+
+### 2. To evaluate the models with our Hyper-Skin dataset
+Refer to the evaluation notebooks provided [here](experiments) for the experimental evaluation of each models. The notebook provides the walkthrough in loading the test data, and performed the evaluation with the two evaluation metrics, i.e., SSIM and SAM. The corresponding results are visualized in the provided notebooks.
+
+
 ### Benchmarking and Evaluation Scripts
 ----
 We provided the two metrics, i.e., SSIM and SAM, we used to evaluate our experiments in the utils script, availabe [here](utils/metrics.py)
@@ -69,7 +97,7 @@ These experimental notebooks are provided in the jupyter notebook format and can
 ----
 If you use this package or the associated dataset, please kindly cite these following BibTeX entries:
 
-```
+```bibtex
 @misc{hs2013,
 title={Hyper-Skin: A Hyperspectral Dataset for Reconstructing Facial Skin-Spectra from RGB Images},
 author={Pai Chet Ng, Zhixiang Chi, Yannick Verdie, Juwei Lu, Konstantinos N. Plataniotis},
