@@ -2,10 +2,11 @@
 ----
 [Project Page](https://hyper-skin-2023.github.io/) |[Dataset Access Request](https://hyper-skin-2023.github.io/dataset/)
 
-```
-> **Note**
+
+> 🚩 **Note** 
+> 
 > A subset of data (with consent from the participants) are available for exploration. Check [here](https://hyperspectral-skin-2023-hyperskin-app-main-uvtyau.streamlit.app/Hyper-Skin(RGB,_VIS)?utm_medium=oembed) for the VIS data, and [here](https://hyperspectral-skin-2023-hyperskin-app-main-uvtyau.streamlit.app/Hyper-Skin(MSI,_NIR)?utm_medium=oembed) for the NIR data.
-```
+
 
 ![img](figure/overview.png)
 This repository contains the codes for the benchmark evaluation design for **Hyper-Skin 2023 dataset**. The instruction to request the access to the data can be found [here](https://hyper-skin-2023.github.io/dataset/). 
@@ -18,9 +19,7 @@ To ensure an unbiased evaluation of our data, we employed a participant-based da
 
 ### Data Download Instructions
 ----
-The data is provided publicly available in our SharedPoint cloud. 
-- Click [Hyper-Skin(RGB, VIS)](https://utoronto.sharepoint.com/:f:/r/sites/fase-hyper-skin/Shared%20Documents/Hyper-Skin(MSI,%20NIR)?csf=1&web=1&e=yoDSDm) to download the (RGB, VIS) data pair.
-- Click [Hyper-Skin(MSI, NIR)](https://utoronto.sharepoint.com/:f:/r/sites/fase-hyper-skin/Shared%20Documents/Hyper-Skin(MSI,%20NIR)?csf=1&web=1&e=BGlo2x) to download the (MSI, NIR) data pair.
+To request access to the dataset, interested researchers must follow the credentialization procedures. This includes digitally signing the End User License Agreement (EULA) with their official affiliation, acknowledging and agreeing to the terms and conditions stated in the agreement. Please read and sign the EULA [here](https://hyper-skin-2023.github.io/dataset/). The pdf version of the EULA is available [here](documents/EULA-2023.pdf) for your record.
 
 In each dataset, you can find the (input, output) pair folders. For (RGB, VIS), the input folder is named as RGB_{camera type} and the output folder is named HSI_VIS; whereas for (MSI, NIR), the input folder is named as MSI (which refer to the stack of RGB_CIE and infrared image at 960nm) and the output folder HSI_NIR. Note that we also provide the infrared image at 960nm in a single folder named IMG_960. This allow the interested user to stack the infrared image with other RGB data generated from other camera response function for futher experiment. 
 In each folder, there are train and test subfolder containing the training set data and testing set data. The organization of the data is as follows:
