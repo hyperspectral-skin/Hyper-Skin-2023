@@ -11,9 +11,9 @@
 ## Introduction
 ----
 
-![img](figure/overview.png)
+<!-- ![img](figure/overview.png) -->
 This repository contains the codes for the benchmark evaluation design for **Hyper-Skin 2023 dataset**. The instruction to request the access to the data can be found [here](https://hyper-skin-2023.github.io/dataset/). 
-Hyper-Skin is a comprehensive hyperspectral dataset designed specifically for facial skin analysis. It covers a wide spectral range from visible (VIS) to near-infrared (NIR) spectra, allowing for a holistic understanding of various aspects of human facial skin. The dataset includes 330 hyperspectral cubes captured from 51 subjects, featuring diverse facial poses and angles. Each hyperspectral cube with spatial resolution of 1024 x 1024 contains 1,048,576 spectra of length 448, providing a rich and detailed representation of skin properties.  The 448-bands data is resampled into two 31-band datasets: one covering the visible spectrum from 400nm to 700nm, and the other covering the near-infrared spectrum from 700nm to 1000nm. Additionally, synthetic RGB and Multispectral (MSI) data are generated, comprising RGB images and an infrared image at 960nm. These steps result in the creation of our Hyper-Skin dataset, encompassing two types of data: (RGB, VIS) and (MSI, NIR). 
+Hyper-Skin is a comprehensive hyperspectral dataset designed specifically for facial skin analysis. It covers a wide spectral range from visible (VIS) to near-infrared (NIR) spectra, allowing for a holistic understanding of various aspects of human facial skin. The dataset includes 306 hyperspectral cubes captured from 51 subjects, featuring diverse facial poses and angles. Each hyperspectral cube with spatial resolution of 1024 x 1024 contains 1,048,576 spectra of length 448, providing a rich and detailed representation of skin properties.  The 448-bands data is resampled into two 31-band datasets: one covering the visible spectrum from 400nm to 700nm, and the other covering the near-infrared spectrum from 700nm to 1000nm. Additionally, synthetic RGB and Multispectral (MSI) data are generated, comprising RGB images and an infrared image at 960nm. These steps result in the creation of our Hyper-Skin dataset, encompassing two types of data: (RGB, VIS) and (MSI, NIR). 
 
 To ensure an unbiased evaluation of our data, we employed a participant-based data splitting approach. Specifically, we randomly selected 10% of the participants from our participant pool and allocated their data exclusively to the testing set. This method ensures that the testing set contains facial skin data from unseen subjects, who were not represented in the training set. By using participant-based data splitting, we mitigate the risk of potential bias and ensure a more robust assessment of the generalization capabilities of our models. 
 
@@ -82,15 +82,15 @@ python main.py --data_dir {data_dir} --model_name {model_name} --save_dir {save_
 >
 
 ### 2. To evaluate the models with our Hyper-Skin dataset
-Refer to the evaluation notebooks provided [here](experiments) for the experimental evaluation of each models. The notebook provides the walkthrough in loading the test data, and performed the evaluation with the two evaluation metrics, i.e., SSIM and SAM. The corresponding results are visualized in the provided notebooks.
+Refer to the evaluation notebooks provided [here](evaluations) for the experimental evaluation of each models. The notebook provides the walkthrough in loading the test data, and performed the evaluation with the two evaluation metrics, i.e., SSIM and SAM. The corresponding results are visualized in the provided notebooks.
 
 
 ### Benchmarking and Evaluation Scripts
 ----
-We provided the two metrics, i.e., SSIM and SAM, we used to evaluate our experiments in the utils script, availabe [here](utils/metrics.py)
+We provided the two metrics, i.e., SSIM and SAM, we used to evaluate our experiments in the utils script, availabe [here](helpers/metrics.py)
 The data loader script is provided [here](hsiData). 
 We also provided experimental notebooks that user can follow to repeat the experiment either on the (RGB, VIS) or (MSI, NIR) data pairs. 
-These experimental notebooks are provided in the jupyter notebook format and can be found [here](experiments).
+These experimental notebooks are provided in the jupyter notebook format and can be found [here](evaluations).
 
 
 ### Citation
@@ -98,10 +98,13 @@ These experimental notebooks are provided in the jupyter notebook format and can
 If you use this package or the associated dataset, please kindly cite these following BibTeX entries:
 
 ```bibtex
-@misc{hs2013,
-title={Hyper-Skin: A Hyperspectral Dataset for Reconstructing Facial Skin-Spectra from RGB Images},
-author={Pai Chet Ng, Zhixiang Chi, Yannick Verdie, Juwei Lu, Konstantinos N. Plataniotis},
-year={2023}
+@inproceedings{
+ng2023hyperskin,
+title={Hyper-Skin: A Hyperspectral Dataset for Reconstructing Facial Skin-Spectra from {RGB} Images},
+author={Pai Chet Ng and Zhixiang Chi and Yannick Verdie and Juwei Lu and Konstantinos N Plataniotis},
+booktitle={Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+year={2023},
+url={https://openreview.net/forum?id=doV2nhGm1l}
 }
 ```
 
