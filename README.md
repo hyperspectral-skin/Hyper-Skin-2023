@@ -27,27 +27,64 @@ To request access to the dataset, interested researchers must follow the credent
 In each dataset, you can find the (input, output) pair folders. For (RGB, VIS), the input folder is named as RGB_{camera type} and the output folder is named HSI_VIS; whereas for (MSI, NIR), the input folder is named as MSI (which refer to the stack of RGB_CIE and infrared image at 960nm) and the output folder HSI_NIR. Note that we also provide the infrared image at 960nm in a single folder named IMG_960. This allow the interested user to stack the infrared image with other RGB data generated from other camera response function for futher experiment. 
 In each folder, there are train and test subfolder containing the training set data and testing set data. The organization of the data is as follows:
 
-
 ```
- |-- Hyper-Skin(RGB, VIS) 
-     |-- HSI_VIS
-         |-- train
-             |-- p{xxx}_{facial_pose}_{direction}.mat
-             |-- ...
-             |-- ...
-         |-- test
-             |-- p{xxx}_{facial_pose}_{direction}.mat
-             |-- ...
-             |-- ...
-     |-- RGB_{camera_type}
-         |-- train
-             |-- p{xxx}_{facial_pose}_{direction}.mat
-             |-- ...
-             |-- ...
-         |-- test
-             |-- p{xxx}_{facial_pose}_{direction}.mat
-             |-- ...
-             |-- ...
+  |-- Hyper-Skin(RGB, VIS)
+      |-- test
+          |-- RGB
+              |-- p{xxx}_{facial_pose}_{direction}.jpg
+              |-- ...
+              |-- ... Count: 24
+          |-- VIS
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 24
+      |-- train
+          |-- RGB
+              |-- p{xxx}_{facial_pose}_{direction}.jpg
+              |-- ...
+              |-- ... Count: 264
+          |-- VIS
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 264
+      |-- valid
+          |-- RGB
+              |-- p{xxx}_{facial_pose}_{direction}.jpg
+              |-- ...
+              |-- ... Count: 18
+          |-- VIS
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 18
+
+  |-- Hyper-Skin(MSI, NIR)
+      |-- test
+          |-- MSI
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 24
+          |-- NIR
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 24
+      |-- train
+          |-- MSI
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 264
+          |-- NIR
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 264
+      |-- valid
+          |-- MSI
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 18
+          |-- NIR
+              |-- p{xxx}_{facial_pose}_{direction}.mat
+              |-- ...
+              |-- ... Count: 18
 ```
 Note that for '{xxx}' refer to the subject id, '{facial_pose}' refers to two types of facial pose, either neutral or smile, and '{direction}' indicating the direction of the face been taken.
 
