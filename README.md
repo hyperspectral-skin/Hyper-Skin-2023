@@ -3,10 +3,6 @@
 [Project Page](https://hyperskinsiteapp--hyperskinwebapp.asia-east1.hosted.app/) |[Dataset Access Request](https://hyperskinsiteapp--hyperskinwebapp.asia-east1.hosted.app/dataAccess)
 
 
-> 🚩 **Note** 
-> 
-> A subset of data (with consent from the participants) are available for exploration. Check [here](https://hyperspectral-skin-2023-hyperskin-app-main-uvtyau.streamlit.app/Hyper-Skin(RGB,_VIS)?utm_medium=oembed) for the VIS data, and [here](https://hyperspectral-skin-2023-hyperskin-app-main-uvtyau.streamlit.app/Hyper-Skin(MSI,_NIR)?utm_medium=oembed) for the NIR data.
-
 
 ## Introduction
 ----
