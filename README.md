@@ -130,7 +130,9 @@ These experimental notebooks are provided in the jupyter notebook format and can
 ----
 If you use this package or the associated dataset, please kindly cite these following BibTeX entries:
 
+```
  |- Note: Please do not use any image, except the one from p027, p019 and p012, for publication purposes.
+```
 
 ```bibtex
 @inproceedings{
