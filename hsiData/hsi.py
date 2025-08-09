@@ -35,22 +35,9 @@ class HSIDataset(torch.utils.data.Dataset):
         target_transform: Optional[Callable] = None,
     ) -> None:
         # _log_api_usage_once(self)
-        if isinstance(root, torch._six.string_classes):
+        if isinstance(root, str):
             root = os.path.expanduser(root)
         self.root = root
-
-        has_transforms = transforms is not None
-        has_separate_transform = transform is not None or target_transform is not None
-        if has_transforms and has_separate_transform:
-            raise ValueError("Only transforms or transform/target_transform can be passed as argument")
-
-        # for backwards-compatibility
-        self.transform = transform
-        self.target_transform = target_transform
-
-        if has_separate_transform:
-            transforms = StandardTransform(transform, target_transform)
-        self.transforms = transforms
 
     def __getitem__(self, index: int) -> Any:
         """

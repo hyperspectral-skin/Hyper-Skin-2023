@@ -71,18 +71,38 @@ def loadcube(path):
 def visualize_save_cube32(cube, bands, rgb_file, saved_path, MSI = False):
     plt.figure(figsize=(20, 10))
     if MSI:
-        rgb = loadcube(rgb_file)[:,:,:3]
+        # rgb = loadcube(rgb_file)[:,:,:3] # Tries to open a JPG as a MAT file
+        rgb = loadRGB(rgb_file)
     else:
         rgb = plt.imread(rgb_file)
 
-    plt.subplot(4,8,1), plt.imshow(rgb), plt.title('RGB')
+    # plt.subplot(4,8,1), plt.imshow(rgb), plt.title('RGB')
+    plt.subplot(4,8,1), plt.imshow(rgb / 255.0), plt.title('RGB')
     plt.axis('off'), plt.xticks([]), plt.yticks([])
-    for k in range(2, 33):
+    # for k in range(2, 33):
+    #     plt.subplot(4,8,k)
+    #     plt.imshow(cube[k-2]), plt.title(f'Band {bands[k-2]}')
+    #     plt.axis('off')
+    #     plt.xticks([])
+    #     plt.yticks([])
+    # plt.tight_layout()
+    # plt.savefig(f'{saved_path}.png')
+    for k in range(2, cube.shape[0] + 2):
         plt.subplot(4,8,k)
-        plt.imshow(cube[k-2]), plt.title(f'Band {bands[k-2]}')
+        plt.imshow(cube[k-2], cmap='gray'), plt.title(f'Band {bands[k-2]}')
         plt.axis('off')
         plt.xticks([])
         plt.yticks([])
     plt.tight_layout()
     plt.savefig(f'{saved_path}.png')
+    plt.close()
 
+def loadRGB(img_path):
+    '''
+    return rgb in (h, w, c)
+    range: (0, 255)
+    '''
+    bgr = cv2.imread(img_path)
+    rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+    rgb = np.float32(rgb)
+    return rgb

@@ -7,14 +7,15 @@ import matplotlib.pyplot as plt
 import config
 from helpers import utils, torchmodel, metrics
 from hsiData import HyperSkinData
-from models.reconstruction import MST_Plus_Plus, HSCNN_Plus, HDNet, hrnet
+from hsiData.models.reconstruction import MST_Plus_Plus, HSCNN_Plus, HDNet, hrnet
 
 import torch
 import torchinfo
 from torchvision import transforms
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(device)
 
-
+# python main.py --data_dir /mnt/data/HyperSkin2023/'Hyper-Skin(RGB, VIS)' --model_name MST_Plus_Plus --datasetType RGBVIS
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', type = str, default = 'E:/hyper-skin-data/Hyper-Skin(MSI, NIR)', required=True, help = 'data directory')
@@ -25,6 +26,7 @@ parser.add_argument('--logged_dir', type = str, default = 'log', required=False,
 parser.add_argument('--reconstructed_dir', type = str, default = 'reconstructed-hsi', required=False, help = 'directory to save the reconstructed HSI')
 parser.add_argument('--saved_predicted', type = bool, default = True, required=False, help = 'whether to save the predicted HSI')
 parser.add_argument('--external_dir', type = str, default = None, required=False, help = 'create and save the log, reconstruction and trained model to external directory')
+parser.add_argument('--datasetType', type = str, default = 'RGBVIS', required=True, help = 'RGBVIS or MSINIR')
 
 
 if __name__ == '__main__':
@@ -32,14 +34,39 @@ if __name__ == '__main__':
 
     #################################################################
     # directory to the MSI (RGB + 960) and NIR data
-    train_nir_dir = f'{args.data_dir}/train/NIR'
-    train_msi_dir = f'{args.data_dir}/train/MSI/MSI_{args.camera_type}'
 
-    valid_nir_dir = f'{args.data_dir}/valid/NIR'
-    valid_msi_dir = f'{args.data_dir}/valid/MSI/MSI_{args.camera_type}'
+    train_a_dir = ""
+    train_b_dir = ""
 
-    test_nir_dir = f'{args.data_dir}/test/NIR'
-    test_msi_dir = f'{args.data_dir}/test/MSI/MSI_{args.camera_type}'
+    valid_a_dir = ""
+    valid_b_dir = ""
+
+    test_a_dir = ""
+    test_b_dir = ""
+
+    if args.datasetType == 'RGBVIS':
+        print("Training for RGBVIS")
+        train_a_dir = f'{args.data_dir}/train/RGB'
+        train_b_dir = f'{args.data_dir}/train/VIS'
+
+        valid_a_dir = f'{args.data_dir}/valid/RGB'
+        valid_b_dir = f'{args.data_dir}/valid/VIS'
+
+        test_a_dir = f'{args.data_dir}/test/RGB'
+        test_b_dir = f'{args.data_dir}/test/VIS'
+    else:
+        print("Training for MSINIR")
+        train_a_dir = f'{args.data_dir}/train/MSI'
+        train_b_dir = f'{args.data_dir}/train/NIR'
+
+        valid_a_dir = f'{args.data_dir}/valid/MSI'
+        valid_b_dir = f'{args.data_dir}/valid/NIR'
+
+        test_a_dir = f'{args.data_dir}/test/MSI'
+        test_b_dir = f'{args.data_dir}/test/NIR'
+    
+
+
 
     # create the saved  and log folders if they not exist
     exp_logged_dir, exp_saved_dir, exp_reconstructed_dir = utils.create_folders_for(
@@ -55,32 +82,43 @@ if __name__ == '__main__':
 
     #################################################################
     # define the train, valid and test datasets  - use v2 for nir and msi data
+
+    input_ext = '.jpg' if args.datasetType == 'RGBVIS' else '.mat'
+
+    loaderClass = HyperSkinData.Load if args.datasetType == 'RGBVIS' else HyperSkinData.Load_v2
+
     train_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.RandomCrop(config.crop_size, config.crop_size)
     ])
-    train_dataset = HyperSkinData.Load_v2(
-            hsi_dir = train_nir_dir,
-            rgb_dir = train_msi_dir, 
+    train_dataset = loaderClass(
+            hsi_dir = train_b_dir,
+            rgb_dir = train_a_dir, 
             transform = train_transform,
+            input_file_ext = input_ext,
+            datasetType = args.datasetType
     )
 
     valid_transform = transforms.Compose([
         transforms.ToTensor()
     ])
-    valid_dataset = HyperSkinData.Load_v2(
-            hsi_dir = valid_nir_dir,
-            rgb_dir = valid_msi_dir, 
+    valid_dataset = loaderClass(
+            hsi_dir = train_b_dir,
+            rgb_dir = train_a_dir, 
             transform = valid_transform,
+            input_file_ext = input_ext,
+            datasetType = args.datasetType
     )
 
     test_transform = transforms.Compose([
         transforms.ToTensor()
     ])
-    test_dataset = HyperSkinData.Load_v2(
-            hsi_dir = test_nir_dir,
-            rgb_dir = test_msi_dir, 
+    test_dataset = loaderClass(
+            hsi_dir = train_b_dir,
+            rgb_dir = train_a_dir, 
             transform = test_transform,
+            input_file_ext = input_ext,
+            datasetType = args.datasetType
     )
 
     # define the dataloaders
@@ -109,13 +147,41 @@ if __name__ == '__main__':
     #################################################################
     # define the model
     if args.model_name == 'MST_Plus_Plus':
-        model_architecture = MST_Plus_Plus.MST_Plus_Plus(in_channels=4, out_channels=31, n_feat=31, stage=3)
+        if args.datasetType == 'RGBVIS':
+            model_architecture = MST_Plus_Plus.MST_Plus_Plus(in_channels=3, out_channels=31, n_feat=31, stage=3)
+        else:
+            model_architecture = MST_Plus_Plus.MST_Plus_Plus(in_channels=4, out_channels=31, n_feat=31, stage=3)
+    
+    elif args.model_name == 'MST_Plus_Plus_Up':
+        print("Late Upsampling Strategy")
+        if args.datasetType == 'RGBVIS':
+            model_architecture = MST_Plus_Plus.MST_Plus_Plus_LateUpsample(
+                in_channels=3, out_channels=31, n_feat=31, stage=3, upscale_factor=2
+            )
+        else:
+            model_architecture = MST_Plus_Plus.MST_Plus_Plus_LateUpsample(
+                in_channels=4, out_channels=31, n_feat=31, stage=3, upscale_factor=2
+            )
+        
     elif args.model_name == 'HSCNN':
-        model_architecture = HSCNN_Plus.HSCNN_Plus(in_channels=4, out_channels=31, num_blocks=20)
+        if args.datasetType == 'RGBVIS':
+            model_architecture = MST_Plus_Plus.MST_Plus_Plus(in_channels=3, out_channels=31, n_feat=31, stage=3)
+        else:
+            model_architecture = HSCNN_Plus.HSCNN_Plus(in_channels=4, out_channels=31, num_blocks=20)
+
     elif args.model_name == 'HRNET':
-        model_architecture = hrnet.SGN(in_channels=4, out_channels=31)
+        if args.datasetType == 'RGBVIS':
+
+            model_architecture = MST_Plus_Plus.MST_Plus_Plus(in_channels=3, out_channels=31, n_feat=31, stage=3)
+        else:
+            model_architecture = hrnet.SGN(in_channels=4, out_channels=31)
+
     elif args.model_name == 'HDNET':
-        model_architecture = HDNet.HDNet()
+        if args.datasetType == 'RGBVIS':
+            model_architecture = HDNet.HDNet()
+        else:
+            model_architecture = HDNet.HDNet(in_ch=4, out_ch=31)
+            
     total_model_parameters = sum(p.numel() for p in model_architecture.parameters())
 
     msg = f"[Experiment Metadata]:\n" +\
@@ -123,7 +189,7 @@ if __name__ == '__main__':
             f"Total Model Parameters: {total_model_parameters}\n" +\
             f"Trained Model will be saved at: {exp_saved_dir}\n" +\
             f"Log file available at: {exp_logged_dir}\n"+\
-            f"data directory (MSI and NIR): {train_msi_dir}, {train_nir_dir}\n"+\
+            f"data directory (RGB and VIS): {train_b_dir}, {train_a_dir}\n"+\
             "==================================================================================================================="
     logger.info(msg)
     print(msg)
@@ -152,6 +218,10 @@ if __name__ == '__main__':
 
     # evaluation
     model.load_model(model_architecture)
+
+    if args.model_name == 'MST_Plus_Plus_Up':
+        model.model.return_hr = True
+    
     model.model.to(device)
     model.model.eval() 
     results = {
@@ -170,17 +240,32 @@ if __name__ == '__main__':
         with torch.no_grad():
             pred = model.model(x)
 
-        ssim_score, ssim_map = metrics.ssim_fn(pred, y)
-        sam_score, sam_map = metrics.sam_fn(pred, y)
+        if args.model_name == 'MST_Plus_Plus_Up':
+            if pred.shape[-2:] != y.shape[-2:]:
+                import torch.nn.functional as F
+                pred_metrics = F.interpolate(
+                    pred, size=y.shape[-2:], mode='bilinear', align_corners=False)
+            else:
+                pred_metrics = pred
 
-        results["file"].append(test_dataset.rgb_files[0].split('\\')[-1].split('.')[0])
+            ssim_score, ssim_map = metrics.ssim_fn(pred_metrics, y)
+            sam_score,  sam_map  = metrics.sam_fn(pred_metrics, y)
+        else:
+            ssim_score, ssim_map = metrics.ssim_fn(pred, y)
+            sam_score, sam_map = metrics.sam_fn(pred, y)
+
+        base_filename = os.path.basename(test_dataset.rgb_files[k])
+        filename_no_ext = os.path.splitext(base_filename)[0]
+        results["file"].append(filename_no_ext)
+
+        # results["file"].append(test_dataset.rgb_files[0].split('\\')[-1].split('.')[0])
         results["pred"].append(pred.cpu().detach().numpy())
         results["ssim_score"].append(ssim_score.cpu().detach().numpy())
         results["ssim_map"].append(ssim_map.cpu().detach().numpy())
         results["sam_score"].append(sam_score.cpu().detach().numpy())
         results["sam_map"].append(sam_map.cpu().detach().numpy())
         
-        print(f"Test [{k}/{len(test_loader)}]: {results['file'][-1]}, SSIM: {results['ssim_score'][-1]}, SAM: {results['sam_score'][-1]}")    
+        print(f"Test [{k}/{len(test_loader)}]: {results['file'][-1]}, SSIM: {results['ssim_score'][-1]}, SAM: {results['sam_score'][-1]}")      
 
 
     #################################################################
@@ -194,7 +279,12 @@ if __name__ == '__main__':
     # save the reconstructed HSI in .mat format
     if args.saved_predicted:
         for k, cube in enumerate(results["pred"]):
-            filename = test_dataset.rgb_files[k].split('\\')[-1].split('.')[0]
+            # filename = test_dataset.rgb_files[k].split('\\')[-1].split('.')[0]
+            # utils.save_matv73(f"{exp_reconstructed_dir}/{filename}.mat", 'cube', cube)
+
+            full_path = test_dataset.rgb_files[k]
+            base_filename = os.path.basename(full_path)
+            filename = os.path.splitext(base_filename)[0]
             utils.save_matv73(f"{exp_reconstructed_dir}/{filename}.mat", 'cube', cube)
 
             # save the visualizations at all bands for each test image

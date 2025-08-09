@@ -22,16 +22,20 @@ class Load(HSIDataset):
     
     def __init__(self, 
                 rgb_dir: str, 
-                hsi_dir: str, 
+                hsi_dir: str,
+                input_file_ext: str = '.jpg',
+                datasetType: str = 'RGBVIS',
                 train_test_mask: bool = None, 
                 transform: Optional[Callable] = None,
                 target_transform: Optional[Callable] = None):
         super().__init__(root = rgb_dir, transform=transform, target_transform=target_transform)
 
+        self.datasetType = datasetType
+
         # files location
         self.rgb_dir = rgb_dir
         self.hsi_dir = hsi_dir
-        self.rgb_files = sorted(glob.glob(self.rgb_dir + "/*.jpg"))
+        self.rgb_files = sorted(glob.glob(f"{self.rgb_dir}/*{input_file_ext}"))
         self.cube_files = sorted(glob.glob(self.hsi_dir + "/*.mat"))
 
         # total data
@@ -41,6 +45,9 @@ class Load(HSIDataset):
             self.rgb_files = self.rgb_files[train_test_mask]
             self.cube_files = self.cube_files[train_test_mask]
         self.total_files = len(self.rgb_files)
+
+        self.transform = transform
+        self.target_transform = target_transform
 
 
     def loadCube(self, cube_path):
@@ -55,11 +62,13 @@ class Load(HSIDataset):
         return cube
 
     def loadData(self, img_path, cube_path):
-        # load image file
-        rgb = plt.imread(img_path)
-        rgb = (rgb - rgb.min()) / (rgb.max() - rgb.min())
+        rgb = None
+        if self.datasetType == 'RGBVIS':
+            rgb = plt.imread(img_path)
+            rgb = (rgb - rgb.min()) / (rgb.max() - rgb.min())
+        else:
+            rgb = self.loadCube(img_path)
 
-        # load cube file
         cube = self.loadCube(cube_path)
 
         return rgb, cube
@@ -90,15 +99,21 @@ class Load_v2(HSIDataset):
     def __init__(self, 
                 rgb_dir: str, 
                 hsi_dir: str, 
+                input_file_ext: str = '.mat',
+                datasetType: str = 'RGBVIS',
                 train_test_mask: bool = None, 
                 transform: Optional[Callable] = None,
                 target_transform: Optional[Callable] = None):
         super().__init__(root = rgb_dir, transform=transform, target_transform=target_transform)
 
+
+        self.datasetType = datasetType
+
+        
         # files location
         self.rgb_dir = rgb_dir
         self.hsi_dir = hsi_dir
-        self.rgb_files = sorted(glob.glob(self.rgb_dir + "/*.mat"))
+        self.rgb_files = sorted(glob.glob(f"{self.rgb_dir}/*{input_file_ext}"))
         self.cube_files = sorted(glob.glob(self.hsi_dir + "/*.mat"))
 
         # total data
@@ -108,6 +123,9 @@ class Load_v2(HSIDataset):
             self.rgb_files = self.rgb_files[train_test_mask]
             self.cube_files = self.cube_files[train_test_mask]
         self.total_files = len(self.rgb_files)
+
+        self.transform = transform
+        self.target_transform = target_transform
 
 
     def loadCube(self, cube_path):
@@ -121,14 +139,29 @@ class Load_v2(HSIDataset):
             f.close()
         return cube
 
+    def loadRGB(self,img_path):
+        '''
+        return rgb in (h, w, c)
+        range: (0, 255)
+        '''
+        bgr = cv2.imread(img_path)
+        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+        rgb = np.float32(rgb)
+        return rgb
+
     def loadData(self, img_path, cube_path):
-        # load MSI data (RGB + 960nm) 1024*1024*4
-        rgb = self.loadCube(img_path)
-
-        # load cube file
-        cube = self.loadCube(cube_path)
-
-        return rgb, cube
+        if self.datasetType == 'RGBVIS':
+            # load MSI data (RGB + 960nm) 1024*1024*4
+            rgb = self.loadRGB(img_path)
+            # load cube file
+            cube = self.loadCube(cube_path)
+            return rgb, cube
+        else:
+            msi_input = self.loadCube(img_path)
+            # load cube file (NIR ground truth)
+            nir_gt = self.loadCube(cube_path)
+            return msi_input, nir_gt
+        
 
     def __getitem__(self, idx):
         rgb, cube = self.loadData(self.rgb_files[idx], self.cube_files[idx])

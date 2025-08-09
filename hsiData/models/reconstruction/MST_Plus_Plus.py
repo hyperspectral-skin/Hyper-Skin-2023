@@ -267,12 +267,50 @@ class MST(nn.Module):
 
         return out
 
+
+class UpsampleBlock(nn.Module):
+    """
+    1. Feature Expansion: Conv_Expand layer expands channels by r^2
+    2. Pixel Rearrangement: PixelShuffle rearranges pixels to increase spatial resolution
+    3. Refinement: Conv_Refine layer smooths artifacts
+    """
+    def __init__(self, in_channels, out_channels, upscale_factor=2):
+        super(UpsampleBlock, self).__init__()
+        self.upscale_factor = upscale_factor
+
+        # 1. Feature Expansion
+        self.conv_expand = nn.Conv2d(
+            in_channels,
+            in_channels * (self.upscale_factor ** 2), # Expand to 31 * 4 = 124 channels
+            kernel_size=3,
+            padding=1
+        )
+
+        # 2. Pixel Rearrangement
+        self.pixel_shuffle = nn.PixelShuffle(self.upscale_factor)
+
+        # 3. Refinement
+        self.conv_refine = nn.Conv2d(
+            in_channels, # Back to 31 channels after PixelShuffle
+            out_channels,
+            kernel_size=3,
+            padding=1
+        )
+
+    def forward(self, x):
+        x = self.conv_expand(x)
+        x = self.pixel_shuffle(x)
+        x = self.conv_refine(x)
+        return x
+
+
 class MST_Plus_Plus(nn.Module):
     def __init__(self, in_channels=3, out_channels=31, n_feat=31, stage=3):
         super(MST_Plus_Plus, self).__init__()
         self.stage = stage
         self.conv_in = nn.Conv2d(in_channels, n_feat, kernel_size=3, padding=(3 - 1) // 2,bias=False)
-        modules_body = [MST(dim=31, stage=2, num_blocks=[1,1,1]) for _ in range(stage)]
+        # FIX: The n_feat parameter is now passed to the MST sub-module
+        modules_body = [MST(in_dim=n_feat, out_dim=n_feat, dim=n_feat, stage=2, num_blocks=[1,1,1]) for _ in range(stage)]
         self.body = nn.Sequential(*modules_body)
         self.conv_out = nn.Conv2d(n_feat, out_channels, kernel_size=3, padding=(3 - 1) // 2,bias=False)
 
@@ -294,7 +332,106 @@ class MST_Plus_Plus(nn.Module):
         return h[:, :, :h_inp, :w_inp]
 
 
+class MST_Plus_Plus_LateUpsample(nn.Module):
+    """
+    Late upsampling variant that can train the spatial upsampler without changing
+    the external training loop.
 
+    Key idea:
+    - Always compute the HR output (via the upsampler).
+    - When return_hr is False (the usual case in your training loop), return a
+      downsampled version of the HR output (hr -> lr) so that the loss against
+      LR ground truth still provides gradients all the way through the upsampler.
+    - When return_hr is True (evaluation for HR metrics), return the HR output.
+
+    Extras:
+    - force_direct_lr: if set True externally (e.g., in a notebook), will return
+      the direct LR reconstruction (pre-upsampler) to reproduce the baseline LR behavior.
+    - down_mode: downsampling mode from HR to LR for consistency training. 'area' is
+      recommended (average pooling-like), but 'bilinear'/'bicubic' are also supported.
+    """
+    def __init__(self, in_channels=3, out_channels=31, n_feat=31, stage=3, upscale_factor=2, down_mode='area'):
+        super(MST_Plus_Plus_LateUpsample, self).__init__()
+        self.stage = stage
+        self.upscale_factor = upscale_factor
+        self.down_mode = down_mode  # 'area' (recommended), 'bilinear', or 'bicubic'
+
+        # Controls for what the forward returns (can be toggled externally)
+        self.return_hr = False          # if True: return HR; else: return LR
+        self.force_direct_lr = False    # if True and return_hr=False: return direct LR (pre-upsampler)
+
+        # Part 1: Spectral reconstruction (LR)
+        self.conv_in = nn.Conv2d(in_channels, n_feat, kernel_size=3, padding=(3 - 1) // 2, bias=False)
+        modules_body = [MST(in_dim=n_feat, out_dim=n_feat, dim=n_feat, stage=2, num_blocks=[1, 1, 1]) for _ in range(stage)]
+        self.body = nn.Sequential(*modules_body)
+        self.conv_out = nn.Conv2d(n_feat, out_channels, kernel_size=3, padding=(3 - 1) // 2, bias=False)
+
+        # Part 2: Spatial upsampling (learned)
+        self.upsampler = UpsampleBlock(
+            in_channels=out_channels,
+            out_channels=out_channels,
+            upscale_factor=self.upscale_factor
+        )
+
+    def _downsample_hr_to_lr(self, x_hr, h_lr, w_lr):
+        """
+        Downsample an HR tensor to LR size, preserving gradients.
+        x_hr: [B, C, H*r, W*r]
+        returns: [B, C, H, W]
+        """
+        if self.down_mode == 'area':
+            return F.interpolate(x_hr, size=(h_lr, w_lr), mode='area')
+        else:
+            # bilinear / bicubic require align_corners flag
+            return F.interpolate(x_hr, size=(h_lr, w_lr), mode=self.down_mode, align_corners=False)
+
+    def forward(self, x):
+        """
+        x: [B, in_channels, H, W]
+        Returns:
+          - if self.return_hr: [B, out_channels, H*r, W*r]
+          - else:
+              - if self.force_direct_lr: direct LR recon (pre-upsampler) [B, out_channels, H, W]
+              - otherwise: HR -> LR downsampled output (consistency) [B, out_channels, H, W]
+        """
+        b, c, h_inp, w_inp = x.shape
+
+        # Pad to multiples of 8 (same as MST++)
+        hb, wb = 8, 8
+        pad_h = (hb - h_inp % hb) % hb
+        pad_w = (wb - w_inp % wb) % wb
+        x_pad = F.pad(x, [0, pad_w, 0, pad_h], mode='reflect')
+
+        # --- Part 1: LR spectral reconstruction ---
+        feat = self.conv_in(x_pad)
+        h = self.body(feat)
+        h = self.conv_out(h)
+        lr_hsi = h + feat  # residual in feature space
+
+        # Crop LR to original spatial size
+        lr_crop = lr_hsi[:, :, :h_inp, :w_inp]
+
+        # --- Part 2: Spatial upsampling to HR ---
+        hr_hsi = self.upsampler(lr_hsi)
+
+        # Crop HR to desired upscaled region
+        h_out, w_out = h_inp * self.upscale_factor, w_inp * self.upscale_factor
+        hr_crop = hr_hsi[:, :, :h_out, :w_out]
+
+        # Return logic
+        if self.return_hr:
+            # HR mode (evaluation of upscaled spatial + spectral resolution)
+            return hr_crop
+
+        # LR mode:
+        if self.force_direct_lr:
+            # Return the direct LR reconstruction (pre-upsampler), as in the original code
+            return lr_crop
+
+        # By default (training and evaluation when not forcing direct LR):
+        # Return downsampled-HR so loss on LR also trains the upsampler.
+        lr_from_hr = self._downsample_hr_to_lr(hr_crop, h_inp, w_inp)
+        return lr_from_hr
 
 
 

@@ -1,0 +1,48 @@
+[(2025-07-30 21:18:08,205] [Experiment Metadata]:
+Model: MST_Plus_Plus
+Total Model Parameters: 1619625
+Trained Model will be saved at: saved-models/exp-MST_Plus_Plus-CIE
+Log file available at: log/exp-MST_Plus_Plus-CIE
+data directory (RGB and VIS): /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/VIS, /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/RGB
+===================================================================================================================
+[(2025-07-30 21:21:47,289] [Experiment Metadata]:
+Model: MST_Plus_Plus
+Total Model Parameters: 1619625
+Trained Model will be saved at: saved-models/exp-MST_Plus_Plus-CIE
+Log file available at: log/exp-MST_Plus_Plus-CIE
+data directory (RGB and VIS): /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/VIS, /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/RGB
+===================================================================================================================
+[(2025-07-30 21:56:47,283] [Experiment Metadata]:
+Model: MST_Plus_Plus
+Total Model Parameters: 1619625
+Trained Model will be saved at: saved-models/exp-MST_Plus_Plus-CIE
+Log file available at: log/exp-MST_Plus_Plus-CIE
+data directory (RGB and VIS): /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/VIS, /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/RGB
+===================================================================================================================
+[(2025-07-30 21:58:09,917] [Experiment Metadata]:
+Model: MST_Plus_Plus
+Total Model Parameters: 1619625
+Trained Model will be saved at: saved-models/exp-MST_Plus_Plus-CIE
+Log file available at: log/exp-MST_Plus_Plus-CIE
+data directory (RGB and VIS): /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/VIS, /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/RGB
+===================================================================================================================
+[(2025-07-30 22:05:56,862] Epoch [0/10]: {'train-loss': 0.0322955509499562, 'valid_loss': 0.02225002423493248}
+[(2025-07-30 22:13:35,070] Epoch [1/10]: {'train-loss': 0.023790925642419043, 'valid_loss': 0.027411259590845668}
+[(2025-07-30 22:21:13,157] Epoch [2/10]: {'train-loss': 0.021822348416952245, 'valid_loss': 0.019029384598869718}
+[(2025-07-30 22:28:51,340] Epoch [3/10]: {'train-loss': 0.019512932567687876, 'valid_loss': 0.02794062385025124}
+[(2025-07-30 22:36:28,809] Epoch [4/10]: {'train-loss': 0.021558208189989356, 'valid_loss': 0.01890258908370566}
+[(2025-07-30 22:44:06,090] Epoch [5/10]: {'train-loss': 0.017173065742209667, 'valid_loss': 0.021246559625124617}
+[(2025-07-30 22:51:44,336] Epoch [6/10]: {'train-loss': 0.016896528669872856, 'valid_loss': 0.01908328356291873}
+[(2025-07-30 22:59:22,960] Epoch [7/10]: {'train-loss': 0.017785100035270618, 'valid_loss': 0.020188968861475587}
+[(2025-07-30 23:07:01,468] Epoch [8/10]: {'train-loss': 0.01668553090315651, 'valid_loss': 0.017232703411895218}
+[(2025-07-30 23:14:38,964] Epoch [9/10]: {'train-loss': 0.01536334329990275, 'valid_loss': 0.018808860204775225}
+[(2025-07-30 23:14:39,135] Total training time: 4589.103693723679
+==========================================================================
+
+[(2025-07-31 03:22:52,152] [Experiment Metadata]:
+Model: MST_Plus_Plus
+Total Model Parameters: 1619625
+Trained Model will be saved at: saved-models/exp-MST_Plus_Plus-CIE
+Log file available at: log/exp-MST_Plus_Plus-CIE
+data directory (RGB and VIS): /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/VIS, /mnt/data/HyperSkin2023/Hyper-Skin(RGB, VIS)/train/RGB
+===================================================================================================================
