@@ -1,9 +1,0 @@
-h5py
-hdf5storage
-matplotlib
-numpy
-opencv_contrib_python
-opencv_python
-scipy
-torchinfo
-torchmetrics
